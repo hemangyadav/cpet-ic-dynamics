@@ -15,12 +15,9 @@ Do **not** use the separate `AT / VO2 Max` summary table. In the reviewed Mayo C
 
 ## Inputs
 
-- Rest VT and VT/IC
-- Exercise 1 VT and VT/IC
-- Exercise 2 VT and VT/IC, optional
-- Exercise 3 VT and VT/IC, optional
-
-At least one exercise maneuver is required.
+- Rest VT and VT/IC (required)
+- Exercise 1 VT and VT/IC (required); Exercise 2 to 4 optional
+- Workload in watts for each exercise maneuver, optional; when entered, the chart and report sentence state when the change occurred
 
 ## Calculations
 
@@ -29,35 +26,43 @@ IC = VT / (VT/IC)
 IRV = IC - VT
 ```
 
+Because the source report rounds VT/IC to a whole percentage (±0.5) and VT to 0.01 L (±0.005), each calculated IC has a plausible range:
+
+```text
+IC range = (VT ± 0.005) / (VT/IC ± 0.5%)
+```
+
+The range for a change from rest combines the resting and exercise ranges conservatively. The resting maneuver dominates the uncertainty because its VT/IC is smallest.
+
 The calculator reports:
 
-- Calculated IC and IRV for each maneuver
-- Maximum IC decrease from rest, in liters and percent
+- Calculated IC and IRV for each maneuver, with plausible ranges
+- Maximum IC decrease from rest, in liters and percent, with a range
 - Maximum exercise VT/IC
-- Minimum exercise IRV
+- Minimum exercise IRV, with a range
 - Dynamic-hyperinflation category
 - Inspiratory mechanical-constraint category
 - A copy-ready report sentence
 
-Because the source report rounds VT/IC to a whole percentage, calculated IC and IRV are approximate.
-
 ## Operational interpretation used by the app
 
-Dynamic hyperinflation:
+Dynamic hyperinflation (thresholds: IC decrease of at least 0.15 L and at least 10% from rest):
 
-- **Clear:** IC decreases by at least 0.15 L **and** at least 10% from rest
-- **Borderline:** only one of those thresholds is met
-- **Not clear:** neither threshold is met
+- **Clear:** the entire plausible range of the IC fall meets both thresholds, so the finding is robust to rounding
+- **Borderline:** the point estimate meets at least one threshold but the range does not clear both, or the point estimate meets neither but the range cannot exclude both
+- **Not clear:** neither threshold is met and the range does not reach both
 
-Published studies have used an IC decrease of 0.15 L, 10%, or either criterion. Because this app reconstructs IC from whole-number VT/IC values rather than reading a directly measured IC, it deliberately uses the more conservative three-level scheme above.
+Published studies have used an IC decrease of 0.15 L, 10%, or either criterion. Because this app reconstructs IC from rounded values rather than reading a directly measured IC, it requires the finding to survive the rounding uncertainty before calling it clear.
 
 Inspiratory mechanical constraint:
 
-- **Marked:** VT/IC at least 70% or IRV at most 0.5 L
-- **Approaching:** VT/IC 60% to 69% or IRV 0.51 to 1.0 L
+- **Marked:** IRV at most 0.5 L
+- **Approaching:** VT/IC at least 60% or IRV at most 1.0 L
 - **Not clear:** neither condition is met
 
-These are practical descriptors, not universal diagnostic cutoffs. Review the flow-volume loops, maneuver quality, breathing pattern, spirometry, and the complete CPET.
+VT/IC alone does not trigger "marked" because IRV = IC x (1 - VT/IC): a patient with a large IC can reach VT/IC of 70% with more than 1 L of IRV remaining.
+
+These are practical descriptors, not universal diagnostic cutoffs. Review the flow-volume loops, maneuver quality, breathing pattern, spirometry, and the complete CPET. A fall in calculated IC assumes adequate IC maneuvers; a submaximal inspiratory effort at high ventilation mimics hyperinflation.
 
 ## Compatibility
 
@@ -71,18 +76,18 @@ The `Load example` button enters:
 
 ```text
 Rest:       VT 1.83 L, VT/IC 53%
-Exercise 1: VT 1.98 L, VT/IC 66%
-Exercise 2: VT 1.93 L, VT/IC 64%
+Exercise 1: VT 1.98 L, VT/IC 66%, 60 W
+Exercise 2: VT 1.93 L, VT/IC 64%, 120 W
 ```
 
 Expected result:
 
 ```text
-Rest IC: about 3.45 L
+Rest IC: about 3.45 L (range 3.41 to 3.50)
 Lowest exercise IC: about 3.00 L
-Maximum IC decrease: about 0.45 L, 13%
-Dynamic hyperinflation: clear
-Inspiratory constraint: approaching
+Maximum IC decrease: about 0.45 L, 13% (range 0.38 to 0.53 L)
+Dynamic hyperinflation: clear (robust to rounding)
+Inspiratory constraint: approaching (minimum IRV 1.02 L)
 ```
 
 ## Files
@@ -95,18 +100,6 @@ README.md
 The app is contained entirely in `index.html`. It has no server, database, analytics, or external JavaScript dependencies. All calculations occur in the browser.
 
 ## Publish with GitHub Pages
-
-Suggested repository name:
-
-```text
-cpet-ic-dynamics
-```
-
-Suggested description:
-
-```text
-CPET serial inspiratory capacity and dynamic hyperinflation calculator
-```
 
 Create a public GitHub repository, upload `index.html` and `README.md` to the repository root, and commit them to the `main` branch.
 
@@ -133,6 +126,10 @@ https://YOUR-GITHUB-USERNAME.github.io/cpet-ic-dynamics/
 ## Updating the site later
 
 Upload a replacement `index.html` to the same repository root and commit it to `main`. GitHub Pages will redeploy the site automatically.
+
+## Version
+
+1.2 (2026-09-11). Version and date are shown on the page.
 
 ## References
 
