@@ -90,43 +90,6 @@ Dynamic hyperinflation: clear (robust to rounding)
 Inspiratory constraint: approaching (minimum IRV 1.02 L)
 ```
 
-## Files
-
-```text
-index.html
-README.md
-```
-
-The app is contained entirely in `index.html`. It has no server, database, analytics, or external JavaScript dependencies. All calculations occur in the browser.
-
-## Publish with GitHub Pages
-
-Create a public GitHub repository, upload `index.html` and `README.md` to the repository root, and commit them to the `main` branch.
-
-Then open:
-
-```text
-Settings > Pages
-```
-
-Choose:
-
-```text
-Source: Deploy from a branch
-Branch: main
-Folder: /(root)
-```
-
-Save the setting. The site address will normally be:
-
-```text
-https://YOUR-GITHUB-USERNAME.github.io/cpet-ic-dynamics/
-```
-
-## Updating the site later
-
-Upload a replacement `index.html` to the same repository root and commit it to `main`. GitHub Pages will redeploy the site automatically.
-
 ## Version
 
 1.2 (2026-09-11). Version and date are shown on the page.
