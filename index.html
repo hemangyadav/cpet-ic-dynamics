@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CPET serial inspiratory capacity calculator using paired tidal volume and VT/IC values from the ExFVL table.">
+  <meta name="description" content="CPET serial inspiratory capacity calculator from paired tidal volume and VT/IC values in the ExFVL table.">
   <title>CPET IC Dynamics Calculator</title>
   <style>
     :root {
@@ -15,37 +15,26 @@
       --accent:#135ea8;
       --accent-dark:#0d477f;
       --accent-soft:#eaf3fc;
-      --notice:#fff8e8;
-      --notice-border:#e7c76f;
       --warn:#fff0ef;
       --warn-border:#e6a7a2;
-      --vt:#2b78b8;
-      --irv:#cfe5f7;
-      --gap:#edf2f7;
       --shadow:0 14px 36px rgba(28,48,75,.10);
     }
     *{box-sizing:border-box}
     body{margin:0;min-height:100vh;background:var(--page);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
     .page-shell{width:min(920px,calc(100% - 28px));margin:36px auto}
-    .hero{margin-bottom:20px}
-    h1{margin:0;font-size:clamp(1.9rem,5vw,2.7rem);line-height:1.08;letter-spacing:-.035em}
+    h1{margin:0 0 20px;font-size:clamp(1.9rem,5vw,2.7rem);line-height:1.08;letter-spacing:-.035em}
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:clamp(20px,4vw,32px)}
-    .source-note{margin:0 0 22px;padding:13px 15px;background:var(--notice);border:1px solid var(--notice-border);border-radius:11px;font-size:.92rem}
-    .source-note strong{display:block;margin-bottom:2px}
-    .section-title{margin:0 0 14px;font-size:1.08rem}
-    form{display:grid;gap:20px}
+    .source-note{margin:0 0 20px;color:var(--muted);font-size:.92rem}
+    form{display:grid;gap:18px}
     .stage-panel{border:1px solid var(--border);border-radius:14px;overflow:hidden}
-    .stage-row{display:grid;grid-template-columns:minmax(120px,.8fr) minmax(120px,1fr) minmax(120px,1fr) minmax(120px,1fr);gap:12px;align-items:center;padding:14px 16px;border-top:1px solid var(--border)}
+    .stage-row{display:grid;grid-template-columns:minmax(110px,.8fr) 1fr 1fr 1fr;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--border)}
     .stage-row:first-child{border-top:0}
-    .stage-header{background:#f8fafc;color:var(--muted);font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
-    .stage-label{font-weight:800}
-    .stage-label small{display:block;color:var(--muted);font-size:.77rem;font-weight:500;margin-top:2px}
-    .field{display:grid;gap:6px}
-    label{font-weight:700;font-size:.92rem}
-    .helper{color:var(--muted);font-size:.8rem;font-weight:500}
+    .stage-header{background:#f8fafc;color:var(--muted);font-size:.8rem;font-weight:700}
+    .stage-label{font-weight:700}
     input,button{font:inherit}
     input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #bac6d4;border-radius:10px;color:var(--ink);background:#fff;outline:none}
     input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(19,94,168,.14)}
+    input:disabled{background:#f3f5f8;color:var(--muted)}
     .actions{display:flex;flex-wrap:wrap;gap:10px}
     button{min-height:46px;padding:10px 18px;border-radius:10px;border:1px solid transparent;font-weight:750;cursor:pointer}
     .primary{color:#fff;background:var(--accent)}
@@ -53,37 +42,30 @@
     .secondary{background:#fff;border-color:#bac6d4;color:var(--ink)}
     .secondary:hover{background:#f5f7fa}
     .error{display:none;margin:0;padding:12px 14px;color:#7a1d17;background:var(--warn);border:1px solid var(--warn-border);border-radius:10px;font-weight:650}
-    .result{display:none;margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
-    .result-kicker{margin:0 0 2px;color:var(--muted);font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-    .result-main{margin:0;color:var(--accent-dark);font-size:clamp(1.45rem,4vw,2.15rem);line-height:1.15;letter-spacing:-.025em}
-    .result-subtitle{margin:8px 0 18px;color:var(--muted)}
-    .pattern-note{display:none;margin:0 0 18px;padding:12px 14px;background:var(--notice);border:1px solid var(--notice-border);border-radius:10px;font-size:.9rem}
-    .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
-    .detail{padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:10px}
-    .detail-label{display:block;margin-bottom:3px;color:var(--muted);font-size:.74rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
-    .detail-value{font-weight:800}
-    .table-card,.visual-card{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:14px;background:#fff}
-    .table-card h3,.visual-card h3,.report-box h3{margin:0 0 12px;font-size:1rem}
-    .table-scroll{overflow-x:auto}
-    table{width:100%;min-width:650px;border-collapse:collapse;font-size:.88rem}
-    th,td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
-    th:first-child,td:first-child{text-align:left}
-    th{color:var(--muted);background:#f8fafc;font-size:.75rem;letter-spacing:.03em;text-transform:uppercase}
-    tbody tr:last-child td{border-bottom:0}
-    .chart{display:grid;grid-template-columns:repeat(var(--stage-count),minmax(72px,1fr));gap:16px;align-items:end;min-height:280px;padding-top:16px;overflow-x:auto}
-    .bar-wrap{display:grid;gap:8px;justify-items:center;min-width:72px}
-    .bar{width:72px;height:230px;display:flex;flex-direction:column-reverse;border:1px solid #8fa0b2;border-radius:8px 8px 2px 2px;overflow:hidden;background:var(--gap)}
-    .seg{display:grid;place-items:center;width:100%;overflow:hidden;text-align:center;font-size:.7rem;font-weight:800;line-height:1.1;padding:2px}
-    .seg.vt{background:var(--vt);color:#fff}
-    .seg.irv{background:var(--irv);color:#17324b}
-    .seg.gap{background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 8px,#edf2f7 8px,#edf2f7 16px)}
-    .bar-label{text-align:center;font-weight:800;font-size:.84rem}
-    .bar-label span{display:block;color:var(--muted);font-size:.73rem;font-weight:500}
-    .legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.86rem}
+    .result{display:none;margin-top:26px;padding-top:26px;border-top:1px solid var(--border)}
+    .result-main{margin:0 0 16px;color:var(--accent-dark);font-size:clamp(1.35rem,3.5vw,1.9rem);line-height:1.15;letter-spacing:-.02em;font-weight:750}
+    .chart-card{margin:0 0 18px}
+    .legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.86rem;margin-bottom:6px}
     .legend-item{display:inline-flex;align-items:center;gap:6px}
     .swatch{width:13px;height:13px;border:1px solid rgba(24,34,48,.18);border-radius:3px}
-    .chart-note{margin:10px 0 0;color:var(--muted);font-size:.84rem}
+    .chart{display:grid;grid-template-columns:repeat(var(--stage-count),minmax(72px,1fr));gap:16px;align-items:start;padding-top:6px;overflow-x:auto}
+    .bar-wrap{display:grid;gap:8px;justify-items:center;min-width:72px}
+    .tlc{font-size:.72rem;color:var(--muted)}
+    .bar{width:72px;height:230px;display:flex;flex-direction:column-reverse;border:1px solid #8fa0b2;border-top:2px solid var(--ink);border-radius:0 0 4px 4px;overflow:hidden;background:#fff}
+    .seg{display:grid;place-items:center;width:100%;overflow:hidden;text-align:center;font-size:.7rem;font-weight:700;line-height:1.1;padding:0}
+    .seg.vt{background:#2b78b8;color:#fff}
+    .seg.irv{background:#cfe5f7;color:#17324b}
+    .seg.eelv{background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 8px,#e3e9f0 8px,#e3e9f0 16px);color:var(--muted)}
+    .bar-label{text-align:center;font-weight:700;font-size:.84rem}
+    .bar-label span{display:block;color:var(--muted);font-size:.73rem;font-weight:500}
+    .table-scroll{overflow-x:auto}
+    table{width:100%;min-width:520px;border-collapse:collapse;font-size:.9rem}
+    th,td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
+    th:first-child,td:first-child{text-align:left}
+    th{color:var(--muted);background:#f8fafc;font-size:.8rem;font-weight:700}
+    tbody tr:last-child td{border-bottom:0}
     .report-box{margin-top:18px;padding:15px;background:var(--accent-soft);border:1px solid #bfd7ef;border-radius:12px}
+    .report-box h2{margin:0 0 8px;font-size:1rem}
     .report-sentence{margin:0 0 10px}
     .copy-status{margin-left:9px;color:var(--accent-dark);font-size:.88rem;font-weight:700}
     .method-note{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:.88rem}
@@ -95,57 +77,52 @@
       .stage-header{display:none}
       .stage-row{grid-template-columns:1fr 1fr 1fr;gap:9px}
       .stage-label{grid-column:1/-1}
-      .stage-row .field label{display:block;color:var(--muted);font-size:.78rem}
       .actions button{flex:1 1 130px}
       .chart{gap:8px}
       .bar{width:54px}
       .seg{font-size:.58rem}
       .bar-label{font-size:.75rem}
-      .bar-label span{font-size:.66rem}
     }
-    .range{display:block;color:var(--muted);font-size:.74rem;font-weight:500}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#edf1f5;color:var(--muted);font-size:.78rem;font-weight:700;margin-left:8px;vertical-align:middle}
   </style>
 </head>
 <body>
 <main class="page-shell">
-  <header class="hero"><h1>CPET IC Dynamics Calculator <span class="badge" id="version-badge"></span></h1></header>
+  <h1>CPET IC Dynamics Calculator</h1>
   <section class="card">
-    <p class="source-note"><strong>Use the ExFVL table.</strong> Enter paired VT and VT/IC values from the same ExFVL row. Do not use the separate AT / VO2 Max summary table. Those values are averaged at physiologic landmarks and may not correspond to the discrete IC maneuvers in the ExFVL table. Workload is optional but lets the report say when the change occurred.</p>
+    <p class="source-note">Enter VT and VT/IC from the same row of the ExFVL table, not from the AT / VO₂max summary table. Workload is optional.</p>
 
-    <h2 class="section-title">Enter serial exercise flow-volume loop values</h2>
     <form id="calculator-form" novalidate>
       <div class="stage-panel">
-        <div class="stage-row stage-header" aria-hidden="true"><div>Maneuver</div><div>Tidal volume, L</div><div>VT/IC, %</div><div>Workload, W (optional)</div></div>
+        <div class="stage-row stage-header" aria-hidden="true"><div>Maneuver</div><div>VT, L</div><div>VT/IC, %</div><div>Workload, W</div></div>
         <div class="stage-row">
-          <div class="stage-label">Rest <small>required</small></div>
-          <div class="field"><label for="rest-vt" class="helper">VT, L</label><input id="rest-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="1.83" required></div>
-          <div class="field"><label for="rest-ratio" class="helper">VT/IC, %</label><input id="rest-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="53" required></div>
-          <div class="field"><label for="rest-work" class="helper">Workload</label><input id="rest-work" type="text" value="rest" disabled></div>
+          <div class="stage-label">Rest</div>
+          <input id="rest-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Rest VT, L" required>
+          <input id="rest-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Rest VT/IC, %" required>
+          <input type="text" value="rest" disabled aria-hidden="true">
         </div>
         <div class="stage-row">
-          <div class="stage-label">Exercise 1 <small>required</small></div>
-          <div class="field"><label for="ex1-vt" class="helper">VT, L</label><input id="ex1-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="1.98" required></div>
-          <div class="field"><label for="ex1-ratio" class="helper">VT/IC, %</label><input id="ex1-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="66" required></div>
-          <div class="field"><label for="ex1-work" class="helper">Workload, W</label><input id="ex1-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="60"></div>
+          <div class="stage-label">Exercise 1</div>
+          <input id="ex1-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 1 VT, L" required>
+          <input id="ex1-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 1 VT/IC, %" required>
+          <input id="ex1-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 1 workload, W">
         </div>
         <div class="stage-row">
-          <div class="stage-label">Exercise 2 <small>optional</small></div>
-          <div class="field"><label for="ex2-vt" class="helper">VT, L</label><input id="ex2-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="1.93"></div>
-          <div class="field"><label for="ex2-ratio" class="helper">VT/IC, %</label><input id="ex2-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="64"></div>
-          <div class="field"><label for="ex2-work" class="helper">Workload, W</label><input id="ex2-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="120"></div>
+          <div class="stage-label">Exercise 2</div>
+          <input id="ex2-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 2 VT, L">
+          <input id="ex2-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 2 VT/IC, %">
+          <input id="ex2-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 2 workload, W">
         </div>
         <div class="stage-row">
-          <div class="stage-label">Exercise 3 <small>optional</small></div>
-          <div class="field"><label for="ex3-vt" class="helper">VT, L</label><input id="ex3-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal"></div>
-          <div class="field"><label for="ex3-ratio" class="helper">VT/IC, %</label><input id="ex3-ratio" type="number" min="1" max="99" step="1" inputmode="decimal"></div>
-          <div class="field"><label for="ex3-work" class="helper">Workload, W</label><input id="ex3-work" type="number" min="0" max="1000" step="1" inputmode="numeric"></div>
+          <div class="stage-label">Exercise 3</div>
+          <input id="ex3-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 3 VT, L">
+          <input id="ex3-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 3 VT/IC, %">
+          <input id="ex3-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 3 workload, W">
         </div>
         <div class="stage-row">
-          <div class="stage-label">Exercise 4 <small>optional</small></div>
-          <div class="field"><label for="ex4-vt" class="helper">VT, L</label><input id="ex4-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal"></div>
-          <div class="field"><label for="ex4-ratio" class="helper">VT/IC, %</label><input id="ex4-ratio" type="number" min="1" max="99" step="1" inputmode="decimal"></div>
-          <div class="field"><label for="ex4-work" class="helper">Workload, W</label><input id="ex4-work" type="number" min="0" max="1000" step="1" inputmode="numeric"></div>
+          <div class="stage-label">Exercise 4</div>
+          <input id="ex4-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 4 VT, L">
+          <input id="ex4-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 4 VT/IC, %">
+          <input id="ex4-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 4 workload, W">
         </div>
       </div>
       <p id="error-message" class="error" role="alert"></p>
@@ -157,29 +134,18 @@
     </form>
 
     <section id="result" class="result" aria-live="polite">
-      <p class="result-kicker">Result</p>
-      <h2 id="result-heading" class="result-main"></h2>
-      <p id="result-subtitle" class="result-subtitle"></p>
-      <p id="pattern-note" class="pattern-note"></p>
-      <div id="detail-grid" class="detail-grid"></div>
-
-      <div class="visual-card">
-        <h3>Serial inspiratory capacity</h3>
+      <p id="result-heading" class="result-main"></p>
+      <div class="chart-card">
         <div class="legend">
-          <span class="legend-item"><span class="swatch" style="background:var(--vt)"></span>Tidal volume</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--irv)"></span>IRV</span>
+          <span class="legend-item"><span class="swatch" style="background:#2b78b8"></span>VT</span>
+          <span class="legend-item"><span class="swatch" style="background:#cfe5f7"></span>IRV</span>
+          <span class="legend-item"><span class="swatch" style="background:repeating-linear-gradient(135deg,#f8fafc,#f8fafc 4px,#e3e9f0 4px,#e3e9f0 8px)"></span>EELV rise from lowest</span>
         </div>
         <div id="chart" class="chart"></div>
-        <p class="chart-note">IC is calculated from VT / (VT/IC). Because the source report rounds VT/IC to a whole percentage and VT to 0.01 L, each calculated IC has a plausible range, shown in the table below and used to decide whether a change is robust.</p>
       </div>
-
-      <div class="table-card">
-        <h3>Calculated values</h3>
-        <div class="table-scroll"><table id="results-table"></table></div>
-      </div>
-
+      <div class="table-scroll"><table id="results-table"></table></div>
       <div class="report-box">
-        <h3>Report sentence</h3>
+        <h2>Report sentence</h2>
         <p id="report-sentence" class="report-sentence"></p>
         <button id="copy-button" class="secondary" type="button">Copy sentence</button>
         <span id="copy-status" class="copy-status" aria-live="polite"></span>
@@ -187,27 +153,19 @@
     </section>
 
     <footer class="method-note">
-      <p><strong>Method:</strong> IC = VT / (VT/IC). IRV = IC − VT. A fall in serial IC is interpreted as an equal rise in end-expiratory lung volume when TLC remains stable and the IC maneuvers are adequate. Because the source report rounds VT/IC to a whole percentage (±0.5) and VT to 0.01 L (±0.005), each IC lies within a plausible range, IC = VT / (VT/IC ± 0.5%). The range for a change from rest combines the resting and exercise ranges conservatively. The resting maneuver dominates the uncertainty because its VT/IC is smallest.</p>
-      <p><strong>Operational interpretation:</strong> Dynamic hyperinflation is labeled <em>clear</em> only when the entire plausible range of the IC fall meets both thresholds (≥0.15 L and ≥10% from rest); <em>borderline</em> when the point estimate meets at least one threshold but the range does not clear both, or when the point estimate meets neither but the range cannot exclude both; and <em>not clear</em> otherwise. Inspiratory mechanical constraint is labeled <em>marked</em> when calculated IRV is ≤0.5 L, and <em>approaching</em> when VT/IC is ≥60% or IRV is ≤1.0 L. VT/IC alone does not trigger "marked" because a large-lunged patient can reach 70% with ample IRV. These are practical descriptors, not universal diagnostic cutoffs. Review the flow-volume loops, maneuver quality, breathing pattern, spirometry, and the complete CPET.</p>
-      <p><strong>References:</strong> O'Donnell DE, et al. <em>Ann Am Thorac Soc</em>. 2017;14(Suppl 1):S30-S39. <a href="https://doi.org/10.1513/AnnalsATS.201610-834FR" target="_blank" rel="noopener noreferrer">DOI</a>. Examples of published operational thresholds include Collins SE, et al. <em>Am J Respir Crit Care Med</em>. 2025;211:1519-1522. <a href="https://doi.org/10.1164/rccm.202501-0205RL" target="_blank" rel="noopener noreferrer">DOI</a>, and Huber dos Santos A, et al. <em>Respir Med</em>. 2026;260:108924. <a href="https://doi.org/10.1016/j.rmed.2026.108924" target="_blank" rel="noopener noreferrer">DOI</a>.</p>
-      <p id="footer-meta"></p>
+      <p>IC = VT ÷ (VT/IC); IRV = IC − VT. A fall in serial IC from rest is read as an equal rise in EELV, assuming TLC is stable. Dynamic hyperinflation: IC fall from rest ≥0.15 L (a conventional operational threshold). Critical inspiratory constraint: VT/IC ≥70% or IRV ≤0.5 L; approaching: IRV ≤1.0 L.</p>
+      <p>O'Donnell DE, Elbehairy AF, Webb KA, Neder JA. <em>Ann Am Thorac Soc</em>. 2017;14(Suppl 1):S30–S39. <a href="https://doi.org/10.1513/AnnalsATS.201610-834FR" target="_blank" rel="noopener noreferrer">DOI</a>. O'Donnell DE, Guenette JA, Maltais F, Webb KA. <em>Chest</em>. 2012;141(3):753–762. <a href="https://doi.org/10.1378/chest.11-0787" target="_blank" rel="noopener noreferrer">DOI</a>. Guenette JA, et al. <em>Pulm Med</em>. 2013;2013:956081. <a href="https://doi.org/10.1155/2013/956081" target="_blank" rel="noopener noreferrer">DOI</a>.</p>
+      <p>Runs entirely in your browser; nothing is sent or stored. Do not enter patient identifiers.</p>
     </footer>
   </section>
 </main>
 <script>
 "use strict";
 
-const APP_VERSION = "1.2";
-const APP_DATE = "2026-09-11";
-const REPO_URL = "https://github.com/hemangyadav/cpet-ic-dynamics";
-
-const RATIO_HALF_STEP = 0.5;   // VT/IC reported to a whole percent
-const VT_HALF_STEP = 0.005;    // VT reported to 0.01 L
 const DH_FALL_L = 0.15;
-const DH_FALL_PCT = 10;
-const IRV_MARKED = 0.5;
+const IRV_CRITICAL = 0.5;
 const IRV_APPROACHING = 1.0;
-const RATIO_APPROACHING = 60;
+const RATIO_CRITICAL = 70;
 
 const STAGES = [
   {key:"rest", label:"Rest", required:true, exercise:false},
@@ -221,20 +179,12 @@ const form = document.getElementById("calculator-form");
 const result = document.getElementById("result");
 const errorMessage = document.getElementById("error-message");
 const resultHeading = document.getElementById("result-heading");
-const resultSubtitle = document.getElementById("result-subtitle");
-const patternNote = document.getElementById("pattern-note");
-const detailGrid = document.getElementById("detail-grid");
-const chart = document.getElementById("chart");
 const resultsTable = document.getElementById("results-table");
+const chart = document.getElementById("chart");
 const reportSentence = document.getElementById("report-sentence");
 const copyButton = document.getElementById("copy-button");
 const copyStatus = document.getElementById("copy-status");
 const exampleButton = document.getElementById("example-button");
-
-document.getElementById("version-badge").textContent = `v${APP_VERSION}`;
-document.getElementById("footer-meta").innerHTML =
-  `Version ${APP_VERSION}, ${APP_DATE}. All calculation runs in your browser; nothing is sent or stored. Do not enter patient identifiers. ` +
-  `<a href="${REPO_URL}" target="_blank" rel="noopener noreferrer">Source code</a>.`;
 
 function valueOf(id) {
   const raw = document.getElementById(id).value.trim();
@@ -253,38 +203,11 @@ function readStage(definition) {
   if (work !== null && (!Number.isFinite(work) || work < 0)) throw new Error(definition.label + " workload must be a non-negative number of watts.");
 
   const ic = vt / (ratio / 100);
-  const irv = ic - vt;
-  // Plausible range given rounding of the source values. IRV = VT * (100/ratio - 1),
-  // so its bounds move together with the VT and ratio bounds.
-  const icLo = (vt - VT_HALF_STEP) / ((ratio + RATIO_HALF_STEP) / 100);
-  const icHi = (vt + VT_HALF_STEP) / ((ratio - RATIO_HALF_STEP) / 100);
-  const irvLo = (vt - VT_HALF_STEP) * (100 / (ratio + RATIO_HALF_STEP) - 1);
-  const irvHi = (vt + VT_HALF_STEP) * (100 / (ratio - RATIO_HALF_STEP) - 1);
-
-  return {...definition, vt, ratio, work, ic, irv, icLo, icHi, irvLo, irvHi};
+  return {...definition, vt, ratio, work, ic, irv: ic - vt};
 }
 
-function stageName(stage) {
-  return stage.work !== null && stage.work !== undefined ? `${stage.label.toLowerCase()} (${stage.work} W)` : stage.label.toLowerCase();
-}
-
-function classifyDynamicHyperinflation(maxFall) {
-  const point = maxFall.amount >= DH_FALL_L - 1e-9 || maxFall.percent >= DH_FALL_PCT - 1e-9;
-  const robust = maxFall.amountLo >= DH_FALL_L - 1e-9 && maxFall.percentLo >= DH_FALL_PCT - 1e-9;
-  const cannotExclude = maxFall.amountHi >= DH_FALL_L - 1e-9 && maxFall.percentHi >= DH_FALL_PCT - 1e-9;
-  const pointBoth = maxFall.amount >= DH_FALL_L - 1e-9 && maxFall.percent >= DH_FALL_PCT - 1e-9;
-
-  if (robust) return {level:"clear", reason:"The plausible range of the IC fall meets both thresholds, so the finding is robust to rounding of the source values."};
-  if (pointBoth) return {level:"borderline", reason:"The point estimate meets both thresholds, but the plausible range given rounding does not, so the finding is not robust."};
-  if (point) return {level:"borderline", reason:"The point estimate meets one of the two thresholds."};
-  if (cannotExclude) return {level:"borderline", reason:"The point estimate meets neither threshold, but the plausible range given rounding cannot exclude a fall that meets both."};
-  return {level:"none", reason:"Neither threshold is met, and the plausible range does not reach both."};
-}
-
-function classifyConstraint(maxRatio, minIrv) {
-  if (minIrv <= IRV_MARKED + 1e-9) return "marked";
-  if (maxRatio >= RATIO_APPROACHING - 1e-9 || minIrv <= IRV_APPROACHING + 1e-9) return "approaching";
-  return "none";
+function atStage(stage) {
+  return stage.work !== null ? ` at ${stage.work} W` : "";
 }
 
 function calculate() {
@@ -292,140 +215,84 @@ function calculate() {
   const rest = stages.find(stage => stage.key === "rest");
   const exercise = stages.filter(stage => stage.exercise);
 
-  for (const stage of stages) {
-    stage.deltaIc = stage.ic - rest.ic;
-    stage.deltaIcPct = (stage.deltaIc / rest.ic) * 100;
-    // Conservative bounds for the change from rest.
-    stage.deltaIcLo = stage.icLo - rest.icHi;
-    stage.deltaIcHi = stage.icHi - rest.icLo;
-  }
+  for (const stage of stages) stage.deltaIc = stage.ic - rest.ic;
 
-  let maxFall = null;
-  let maxRise = {amount:0, percent:0, stage:exercise[0]};
-
-  for (const stage of exercise) {
-    const fall = rest.ic - stage.ic;
-    const fallPct = (fall / rest.ic) * 100;
-    const fallLo = rest.icLo - stage.icHi;
-    const fallHi = rest.icHi - stage.icLo;
-    const percentLo = (fallLo / rest.icHi) * 100;
-    const percentHi = (fallHi / rest.icLo) * 100;
-    const rise = stage.ic - rest.ic;
-    const risePct = (rise / rest.ic) * 100;
-
-    if (maxFall === null || fall > maxFall.amount) {
-      maxFall = {amount:fall, percent:fallPct, amountLo:fallLo, amountHi:fallHi, percentLo, percentHi, stage};
-    }
-    if (rise > maxRise.amount) maxRise = {amount:rise, percent:risePct, stage};
-  }
-
-  const maxRatio = Math.max(...exercise.map(stage => stage.ratio));
+  const lowest = exercise.reduce((best, stage) => stage.ic < best.ic ? stage : best, exercise[0]);
+  const fall = rest.ic - lowest.ic;
+  const fallPct = (fall / rest.ic) * 100;
   const minIrvStage = exercise.reduce((best, stage) => stage.irv < best.irv ? stage : best, exercise[0]);
-  const minIrv = minIrvStage.irv;
-  const dh = classifyDynamicHyperinflation(maxFall);
-  const constraintClass = classifyConstraint(maxRatio, minIrv);
-  const substantialRise = maxRise.amount >= 0.20 - 1e-9 && maxRise.percent >= 10 - 1e-9;
 
-  return {stages, rest, exercise, maxFall, maxRise, maxRatio, minIrv, minIrvStage, dhClass:dh.level, dhReason:dh.reason, constraintClass, substantialRise};
+  const dh = fall >= DH_FALL_L - 1e-9;
+  const maxRatio = Math.max(...exercise.map(stage => stage.ratio));
+  let constraint = "none";
+  if (minIrvStage.irv <= IRV_CRITICAL + 1e-9 || maxRatio >= RATIO_CRITICAL - 1e-9) constraint = "critical";
+  else if (minIrvStage.irv <= IRV_APPROACHING + 1e-9) constraint = "approaching";
+
+  return {stages, rest, lowest, fall, fallPct, minIrvStage, dh, constraint};
 }
 
 function headingFor(data) {
-  const dh = data.dhClass;
-  const constraint = data.constraintClass;
-  if (dh === "clear" && constraint === "marked") return "Dynamic hyperinflation with marked inspiratory constraint";
-  if (dh === "clear" && constraint === "approaching") return "Dynamic hyperinflation with approaching inspiratory constraint";
-  if (dh === "clear") return "Dynamic hyperinflation without clear inspiratory constraint";
-  if (dh === "borderline" && constraint === "marked") return "Borderline IC reduction with marked inspiratory constraint";
-  if (dh === "borderline" && constraint === "approaching") return "Borderline IC reduction with approaching inspiratory constraint";
-  if (dh === "borderline") return "Borderline decrease in inspiratory capacity";
-  if (constraint === "marked") return "Marked inspiratory constraint without dynamic hyperinflation";
-  if (constraint === "approaching") return "Approaching inspiratory constraint without dynamic hyperinflation";
-  return "No clear dynamic hyperinflation or inspiratory constraint";
+  const c = data.constraint;
+  if (data.dh) {
+    if (c === "critical") return "Dynamic hyperinflation with critical inspiratory constraint";
+    if (c === "approaching") return "Dynamic hyperinflation, approaching inspiratory constraint";
+    return "Dynamic hyperinflation without inspiratory constraint";
+  }
+  if (c === "critical") return "Critical inspiratory constraint without dynamic hyperinflation";
+  if (c === "approaching") return "Approaching inspiratory constraint without dynamic hyperinflation";
+  return "No dynamic hyperinflation or inspiratory constraint";
 }
 
-function fmtRange(lo, hi) {
-  return `${lo.toFixed(2)} to ${hi.toFixed(2)}`;
+function signed(value) {
+  return `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(2)}`;
 }
 
 function render(data) {
   resultHeading.textContent = headingFor(data);
 
-  const f = data.maxFall;
-  if (f.amount > 0) {
-    resultSubtitle.textContent = `Maximum calculated IC decrease ${f.amount.toFixed(2)} L (${f.percent.toFixed(0)}%) at ${stageName(f.stage)}; plausible range ${fmtRange(Math.max(f.amountLo, 0), f.amountHi)} L (${Math.max(f.percentLo, 0).toFixed(0)} to ${f.percentHi.toFixed(0)}%). ${data.dhReason}`;
-  } else {
-    resultSubtitle.textContent = `Calculated IC did not decrease below the resting value. ${data.dhReason}`;
-  }
-
-  if (data.substantialRise) {
-    patternNote.textContent = `Calculated IC increased by up to ${data.maxRise.amount.toFixed(2)} L (${data.maxRise.percent.toFixed(0)}%) at ${stageName(data.maxRise.stage)}. This may reflect lung-volume recruitment or a less complete or noncomparable resting IC maneuver. Review the flow-volume loops and maneuver quality.`;
-    patternNote.style.display = "block";
-  } else {
-    patternNote.textContent = "";
-    patternNote.style.display = "none";
-  }
-
-  detailGrid.innerHTML = [
-    ["Rest IC", `${data.rest.ic.toFixed(2)} L<span class="range">range ${fmtRange(data.rest.icLo, data.rest.icHi)}</span>`],
-    ["Lowest exercise IC", `${Math.min(...data.exercise.map(stage => stage.ic)).toFixed(2)} L`],
-    ["Maximum IC decrease", f.amount > 0 ? `${f.amount.toFixed(2)} L (${f.percent.toFixed(0)}%)<span class="range">range ${fmtRange(Math.max(f.amountLo, 0), f.amountHi)} L</span>` : "None"],
-    ["Maximum exercise VT/IC", `${data.maxRatio.toFixed(0)}%`],
-    ["Minimum exercise IRV", `${data.minIrv.toFixed(2)} L<span class="range">range ${fmtRange(data.minIrvStage.irvLo, data.minIrvStage.irvHi)}</span>`]
-  ].map(item => `<div class="detail"><span class="detail-label">${item[0]}</span><span class="detail-value">${item[1]}</span></div>`).join("");
-
   const scale = Math.max(...data.stages.map(stage => stage.ic));
   chart.style.setProperty("--stage-count", data.stages.length);
   chart.innerHTML = data.stages.map(stage => {
-    const gapFraction = Math.max(scale - stage.ic, 0) / scale;
+    const eelvFraction = Math.max(scale - stage.ic, 0) / scale;
     const vtFraction = stage.vt / scale;
     const irvFraction = stage.irv / scale;
     const sub = stage.exercise && stage.work !== null ? `${stage.work} W` : "";
     return `<div class="bar-wrap">
+      <div class="tlc">TLC</div>
       <div class="bar">
-        <div class="seg gap" style="height:${gapFraction * 100}%"></div>
-        <div class="seg vt" style="height:${vtFraction * 100}%">${vtFraction > .12 ? "VT" : ""}</div>
-        <div class="seg irv" style="height:${irvFraction * 100}%">${irvFraction > .12 ? "IRV" : ""}</div>
+        ${eelvFraction > 0 ? `<div class="seg eelv" style="height:${eelvFraction * 100}%">${eelvFraction > .1 ? `+${(scale - stage.ic).toFixed(2)}` : ""}</div>` : ""}
+        <div class="seg vt" style="height:${vtFraction * 100}%">${vtFraction > .12 ? `VT ${stage.vt.toFixed(2)}` : ""}</div>
+        <div class="seg irv" style="height:${irvFraction * 100}%">${irvFraction > .12 ? `IRV ${stage.irv.toFixed(2)}` : ""}</div>
       </div>
-      <div class="bar-label">${stage.label}${sub ? ` <span>${sub}</span>` : ""}<span>IC ${stage.ic.toFixed(2)} L</span></div>
+      <div class="bar-label">${stage.label}<span>${sub || "&nbsp;"}</span><span>IC ${stage.ic.toFixed(2)} L</span></div>
     </div>`;
   }).join("");
 
-  resultsTable.innerHTML = `<thead><tr><th>Maneuver</th><th>Work, W</th><th>VT, L</th><th>VT/IC</th><th>IC, L</th><th>IC range, L</th><th>IRV, L</th><th>IRV range, L</th><th>Delta IC, L</th><th>Delta IC range, L</th><th>Delta IC, %</th></tr></thead>
+  resultsTable.innerHTML = `<thead><tr><th>Maneuver</th><th>Work, W</th><th>VT, L</th><th>VT/IC</th><th>IC, L</th><th>IRV, L</th><th>ΔIC, L</th></tr></thead>
     <tbody>${data.stages.map(stage => `<tr>
-      <td><strong>${stage.label}</strong></td>
+      <td>${stage.label}</td>
       <td>${stage.exercise ? (stage.work !== null ? stage.work : "") : "rest"}</td>
       <td>${stage.vt.toFixed(2)}</td>
       <td>${stage.ratio.toFixed(0)}%</td>
       <td>${stage.ic.toFixed(2)}</td>
-      <td>${fmtRange(stage.icLo, stage.icHi)}</td>
       <td>${stage.irv.toFixed(2)}</td>
-      <td>${fmtRange(stage.irvLo, stage.irvHi)}</td>
-      <td>${stage.deltaIc >= 0 ? "+" : ""}${stage.deltaIc.toFixed(2)}</td>
-      <td>${stage.exercise ? `${stage.deltaIcLo >= 0 ? "+" : ""}${stage.deltaIcLo.toFixed(2)} to ${stage.deltaIcHi >= 0 ? "+" : ""}${stage.deltaIcHi.toFixed(2)}` : ""}</td>
-      <td>${stage.deltaIcPct >= 0 ? "+" : ""}${stage.deltaIcPct.toFixed(0)}%</td>
+      <td>${stage.exercise ? signed(stage.deltaIc) : ""}</td>
     </tr>`).join("")}</tbody>`;
 
   const sentences = [];
-  const where = `at ${stageName(f.stage)}`;
-  const rangeText = `plausible range ${fmtRange(Math.max(f.amountLo, 0), f.amountHi)} L given rounding of the reported values`;
-  if (data.dhClass === "clear") {
-    sentences.push(`Calculated inspiratory capacity decreased by ${f.amount.toFixed(2)} L (${f.percent.toFixed(0)}%) from rest ${where} (${rangeText}), consistent with dynamic hyperinflation assuming adequate IC maneuvers.`);
-  } else if (data.dhClass === "borderline") {
-    sentences.push(`Calculated inspiratory capacity decreased by ${Math.max(f.amount, 0).toFixed(2)} L (${Math.max(f.percent, 0).toFixed(0)}%) from rest ${where} (${rangeText}), a borderline change; dynamic hyperinflation can be neither confirmed nor excluded from these values.`);
-  } else if (data.substantialRise) {
-    sentences.push(`Serial calculated inspiratory capacity did not decrease during exercise and increased by up to ${data.maxRise.amount.toFixed(2)} L (${data.maxRise.percent.toFixed(0)}%) from rest, without evidence of dynamic hyperinflation.`);
+  if (data.dh) {
+    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (−${data.fall.toFixed(2)} L, ${data.fallPct.toFixed(0)}%), consistent with dynamic hyperinflation.`);
+  } else if (data.fall > 0) {
+    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (−${data.fall.toFixed(2)} L), below the threshold for dynamic hyperinflation.`);
   } else {
-    sentences.push("Serial calculated inspiratory capacity did not show dynamic hyperinflation.");
+    sentences.push(`Calculated inspiratory capacity did not fall below the resting value of ${data.rest.ic.toFixed(2)} L, without dynamic hyperinflation.`);
   }
 
-  const irvWhere = `at ${stageName(data.minIrvStage)}`;
-  if (data.constraintClass === "marked") {
-    sentences.push(`Minimum calculated IRV was ${data.minIrv.toFixed(2)} L ${irvWhere} with maximum VT/IC of ${data.maxRatio.toFixed(0)}%, indicating marked inspiratory mechanical constraint.`);
-  } else if (data.constraintClass === "approaching") {
-    sentences.push(`Minimum calculated IRV was ${data.minIrv.toFixed(2)} L ${irvWhere} with maximum VT/IC of ${data.maxRatio.toFixed(0)}%, approaching inspiratory mechanical constraint.`);
-  } else {
-    sentences.push(`Minimum calculated IRV was ${data.minIrv.toFixed(2)} L ${irvWhere} with maximum VT/IC of ${data.maxRatio.toFixed(0)}%, without inspiratory mechanical constraint.`);
-  }
+  const m = data.minIrvStage;
+  const irvText = `Minimum IRV was ${m.irv.toFixed(2)} L (VT/IC ${m.ratio.toFixed(0)}%)${atStage(m)}`;
+  if (data.constraint === "critical") sentences.push(`${irvText}, indicating critical inspiratory mechanical constraint.`);
+  else if (data.constraint === "approaching") sentences.push(`${irvText}, approaching critical inspiratory mechanical constraint.`);
+  else sentences.push(`${irvText}, without inspiratory mechanical constraint.`);
 
   reportSentence.textContent = sentences.join(" ");
   result.style.display = "block";
@@ -449,16 +316,15 @@ form.addEventListener("submit", event => {
 form.addEventListener("reset", () => {
   errorMessage.style.display = "none";
   result.style.display = "none";
-  patternNote.style.display = "none";
   copyStatus.textContent = "";
 });
 
 exampleButton.addEventListener("click", () => {
   const example = {
-    "rest-vt":"1.83", "rest-ratio":"53",
-    "ex1-vt":"1.98", "ex1-ratio":"66", "ex1-work":"60",
-    "ex2-vt":"1.93", "ex2-ratio":"64", "ex2-work":"120",
-    "ex3-vt":"", "ex3-ratio":"", "ex3-work":"",
+    "rest-vt":"0.90", "rest-ratio":"40",
+    "ex1-vt":"1.30", "ex1-ratio":"65", "ex1-work":"40",
+    "ex2-vt":"1.45", "ex2-ratio":"84", "ex2-work":"80",
+    "ex3-vt":"1.42", "ex3-ratio":"90", "ex3-work":"100",
     "ex4-vt":"", "ex4-ratio":"", "ex4-work":""
   };
   for (const [id, value] of Object.entries(example)) document.getElementById(id).value = value;
