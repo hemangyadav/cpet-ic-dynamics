@@ -26,11 +26,23 @@
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:clamp(20px,4vw,32px)}
     .source-note{margin:0 0 20px;color:var(--muted);font-size:.92rem}
     form{display:grid;gap:18px}
+
+    /* Unit toggle */
+    .unit-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .unit-label{font-size:.88rem;font-weight:650;color:var(--muted)}
+    .unit-toggle{display:inline-flex;border:1px solid #bac6d4;border-radius:8px;overflow:hidden}
+    .unit-toggle button{padding:6px 14px;min-height:34px;border:none;background:#fff;color:var(--ink);font:inherit;font-size:.84rem;font-weight:650;cursor:pointer;transition:background .12s,color .12s}
+    .unit-toggle button+button{border-left:1px solid #bac6d4}
+    .unit-toggle button.active{background:var(--accent);color:#fff}
+    .unit-toggle button:not(.active):hover{background:#f5f7fa}
+
     .stage-panel{border:1px solid var(--border);border-radius:14px;overflow:hidden}
     .stage-row{display:grid;grid-template-columns:minmax(110px,.8fr) 1fr 1fr 1fr;gap:12px;align-items:center;padding:12px 16px;border-top:1px solid var(--border)}
     .stage-row:first-child{border-top:0}
     .stage-header{background:#f8fafc;color:var(--muted);font-size:.8rem;font-weight:700}
-    .stage-label{font-weight:700}
+    .stage-label{font-weight:700;display:flex;align-items:center;gap:6px}
+    .remove-btn{width:22px;height:22px;border-radius:50%;border:1px solid #bac6d4;background:#fff;color:var(--muted);font-size:.78rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
+    .remove-btn:hover{background:var(--warn);border-color:var(--warn-border);color:#7a1d17}
     input,button{font:inherit}
     input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #bac6d4;border-radius:10px;color:var(--ink);background:#fff;outline:none}
     input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(19,94,168,.14)}
@@ -41,6 +53,10 @@
     .primary:hover{background:var(--accent-dark)}
     .secondary{background:#fff;border-color:#bac6d4;color:var(--ink)}
     .secondary:hover{background:#f5f7fa}
+    .add-row-btn{width:100%;min-height:40px;padding:8px 14px;border:1px dashed #bac6d4;border-radius:0 0 13px 13px;background:transparent;color:var(--accent);font-size:.86rem;font-weight:650;cursor:pointer;margin-top:-1px}
+    .add-row-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+    .add-row-btn:disabled{color:var(--muted);cursor:default;border-color:#d8e0ea}
+    .add-row-btn:disabled:hover{background:transparent}
     .error{display:none;margin:0;padding:12px 14px;color:#7a1d17;background:var(--warn);border:1px solid var(--warn-border);border-radius:10px;font-weight:650}
     .result{display:none;margin-top:26px;padding-top:26px;border-top:1px solid var(--border)}
     .result-main{margin:0 0 16px;color:var(--accent-dark);font-size:clamp(1.35rem,3.5vw,1.9rem);line-height:1.15;letter-spacing:-.02em;font-weight:750}
@@ -89,42 +105,22 @@
 <main class="page-shell">
   <h1>CPET IC Dynamics Calculator</h1>
   <section class="card">
-    <p class="source-note">Enter VT and VT/IC from the same row of the ExFVL table, not from the AT / VO₂max summary table. Workload is optional.</p>
+    <p class="source-note">Enter VT and VT/IC from the same row of the ExFVL table, not from the AT / VO&#x2082;max summary table. Workload is optional.</p>
 
     <form id="calculator-form" novalidate>
-      <div class="stage-panel">
-        <div class="stage-row stage-header" aria-hidden="true"><div>Maneuver</div><div>VT, L</div><div>VT/IC, %</div><div>Workload, W</div></div>
-        <div class="stage-row">
-          <div class="stage-label">Rest</div>
-          <input id="rest-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Rest VT, L" required>
-          <input id="rest-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Rest VT/IC, %" required>
-          <input type="text" value="rest" disabled aria-hidden="true">
-        </div>
-        <div class="stage-row">
-          <div class="stage-label">Exercise 1</div>
-          <input id="ex1-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 1 VT, L" required>
-          <input id="ex1-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 1 VT/IC, %" required>
-          <input id="ex1-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 1 workload, W">
-        </div>
-        <div class="stage-row">
-          <div class="stage-label">Exercise 2</div>
-          <input id="ex2-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 2 VT, L">
-          <input id="ex2-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 2 VT/IC, %">
-          <input id="ex2-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 2 workload, W">
-        </div>
-        <div class="stage-row">
-          <div class="stage-label">Exercise 3</div>
-          <input id="ex3-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 3 VT, L">
-          <input id="ex3-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 3 VT/IC, %">
-          <input id="ex3-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 3 workload, W">
-        </div>
-        <div class="stage-row">
-          <div class="stage-label">Exercise 4</div>
-          <input id="ex4-vt" type="number" min="0.05" max="10" step="0.01" inputmode="decimal" placeholder="VT" aria-label="Exercise 4 VT, L">
-          <input id="ex4-ratio" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="Exercise 4 VT/IC, %">
-          <input id="ex4-work" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="Exercise 4 workload, W">
+      <div class="unit-row">
+        <span class="unit-label">VT unit:</span>
+        <div class="unit-toggle" role="group" aria-label="VT unit">
+          <button type="button" id="unit-ml">mL</button>
+          <button type="button" id="unit-l" class="active">L</button>
         </div>
       </div>
+
+      <div class="stage-panel" id="stage-panel">
+        <!-- rows injected by JS -->
+      </div>
+      <button type="button" class="add-row-btn" id="add-row-btn">+ Add exercise stage</button>
+
       <p id="error-message" class="error" role="alert"></p>
       <div class="actions">
         <button class="primary" type="submit">Calculate</button>
@@ -153,8 +149,8 @@
     </section>
 
     <footer class="method-note">
-      <p>IC = VT ÷ (VT/IC); IRV = IC − VT. A fall in serial IC from rest is read as an equal rise in EELV, assuming TLC is stable. Dynamic hyperinflation: IC fall from rest ≥0.15 L (a conventional operational threshold). Critical inspiratory constraint: VT/IC ≥70% or IRV ≤0.5 L; approaching: IRV ≤1.0 L.</p>
-      <p>O'Donnell DE, Elbehairy AF, Webb KA, Neder JA. <em>Ann Am Thorac Soc</em>. 2017;14(Suppl 1):S30–S39. <a href="https://doi.org/10.1513/AnnalsATS.201610-834FR" target="_blank" rel="noopener noreferrer">DOI</a>. O'Donnell DE, Guenette JA, Maltais F, Webb KA. <em>Chest</em>. 2012;141(3):753–762. <a href="https://doi.org/10.1378/chest.11-0787" target="_blank" rel="noopener noreferrer">DOI</a>. Guenette JA, et al. <em>Pulm Med</em>. 2013;2013:956081. <a href="https://doi.org/10.1155/2013/956081" target="_blank" rel="noopener noreferrer">DOI</a>.</p>
+      <p>IC = VT &divide; (VT/IC); IRV = IC &minus; VT. A fall in serial IC from rest is read as an equal rise in EELV, assuming TLC is stable. Dynamic hyperinflation: IC fall from rest &ge;0.15 L (a conventional operational threshold). Critical inspiratory constraint: VT/IC &ge;70% or IRV &le;0.5 L; approaching: IRV &le;1.0 L.</p>
+      <p>O'Donnell DE, Elbehairy AF, Webb KA, Neder JA. <em>Ann Am Thorac Soc</em>. 2017;14(Suppl 1):S30&ndash;S39. <a href="https://doi.org/10.1513/AnnalsATS.201610-834FR" target="_blank" rel="noopener noreferrer">DOI</a>. O'Donnell DE, Guenette JA, Maltais F, Webb KA. <em>Chest</em>. 2012;141(3):753&ndash;762. <a href="https://doi.org/10.1378/chest.11-0787" target="_blank" rel="noopener noreferrer">DOI</a>. Guenette JA, et al. <em>Pulm Med</em>. 2013;2013:956081. <a href="https://doi.org/10.1155/2013/956081" target="_blank" rel="noopener noreferrer">DOI</a>.</p>
       <p>Runs entirely in your browser; nothing is sent or stored. Do not enter patient identifiers.</p>
     </footer>
   </section>
@@ -166,16 +162,24 @@ const DH_FALL_L = 0.15;
 const IRV_CRITICAL = 0.5;
 const IRV_APPROACHING = 1.0;
 const RATIO_CRITICAL = 70;
+const MAX_EXERCISE = 10;
 
-const STAGES = [
-  {key:"rest", label:"Rest", required:true, exercise:false},
-  {key:"ex1", label:"Exercise 1", required:true, exercise:true},
-  {key:"ex2", label:"Exercise 2", required:false, exercise:true},
-  {key:"ex3", label:"Exercise 3", required:false, exercise:true},
-  {key:"ex4", label:"Exercise 4", required:false, exercise:true}
-];
+/* ── state ── */
+let vtUnit = "l";           // "ml" or "l"
+let exerciseCount = 4;      // starts with 4 optional exercise rows
 
+function getStages() {
+  const stages = [{key:"rest", label:"Rest", required:true, exercise:false, removable:false}];
+  for (let i = 1; i <= exerciseCount; i++) {
+    stages.push({key:`ex${i}`, label:`Exercise ${i}`, required:i <= 1, exercise:true, removable:i > 4});
+  }
+  return stages;
+}
+
+/* ── DOM refs ── */
 const form = document.getElementById("calculator-form");
+const stagePanel = document.getElementById("stage-panel");
+const addRowBtn = document.getElementById("add-row-btn");
 const result = document.getElementById("result");
 const errorMessage = document.getElementById("error-message");
 const resultHeading = document.getElementById("result-heading");
@@ -185,20 +189,160 @@ const reportSentence = document.getElementById("report-sentence");
 const copyButton = document.getElementById("copy-button");
 const copyStatus = document.getElementById("copy-status");
 const exampleButton = document.getElementById("example-button");
+const unitMlBtn = document.getElementById("unit-ml");
+const unitLBtn = document.getElementById("unit-l");
 
+/* ── unit toggle ── */
+function vtInputAttrs() {
+  if (vtUnit === "ml") return {min:"50", max:"10000", step:"1", placeholder:"VT", inputmode:"numeric"};
+  return {min:"0.05", max:"10", step:"0.01", placeholder:"VT", inputmode:"decimal"};
+}
+
+function vtHeaderText() {
+  return vtUnit === "ml" ? "VT, mL" : "VT, L";
+}
+
+function convertDisplayToL(raw) {
+  return vtUnit === "ml" ? raw / 1000 : raw;
+}
+
+function convertLToDisplay(liters) {
+  return vtUnit === "ml" ? Math.round(liters * 1000) : liters;
+}
+
+function switchUnit(newUnit) {
+  if (newUnit === vtUnit) return;
+  const oldUnit = vtUnit;
+  vtUnit = newUnit;
+
+  unitMlBtn.classList.toggle("active", vtUnit === "ml");
+  unitLBtn.classList.toggle("active", vtUnit === "l");
+
+  // convert existing values in place
+  const vtInputs = stagePanel.querySelectorAll("input[data-field='vt']");
+  vtInputs.forEach(inp => {
+    if (inp.value.trim() !== "") {
+      const raw = Number(inp.value);
+      if (Number.isFinite(raw)) {
+        if (oldUnit === "l" && newUnit === "ml") inp.value = Math.round(raw * 1000);
+        else if (oldUnit === "ml" && newUnit === "l") inp.value = (raw / 1000).toFixed(2);
+      }
+    }
+  });
+
+  // update attributes and header
+  const attrs = vtInputAttrs();
+  vtInputs.forEach(inp => {
+    inp.min = attrs.min; inp.max = attrs.max; inp.step = attrs.step;
+    inp.placeholder = attrs.placeholder; inp.inputMode = attrs.inputmode;
+  });
+  const hdr = stagePanel.querySelector(".vt-header");
+  if (hdr) hdr.textContent = vtHeaderText();
+}
+
+unitMlBtn.addEventListener("click", () => switchUnit("ml"));
+unitLBtn.addEventListener("click", () => switchUnit("l"));
+
+/* ── render rows ── */
+function buildPanel() {
+  const stages = getStages();
+  const attrs = vtInputAttrs();
+
+  let html = `<div class="stage-row stage-header" aria-hidden="true"><div>Maneuver</div><div class="vt-header">${vtHeaderText()}</div><div>VT/IC, %</div><div>Workload, W</div></div>`;
+
+  for (const s of stages) {
+    const vtId = `${s.key}-vt`;
+    const ratioId = `${s.key}-ratio`;
+    const workId = `${s.key}-work`;
+    const req = s.required ? "required" : "";
+    const removeHtml = s.removable ? `<button type="button" class="remove-btn" data-remove="${s.key}" title="Remove ${s.label}" aria-label="Remove ${s.label}">&times;</button>` : "";
+
+    const workCell = s.exercise
+      ? `<input id="${workId}" type="number" min="0" max="1000" step="1" inputmode="numeric" placeholder="W" aria-label="${s.label} workload, W">`
+      : `<input type="text" value="rest" disabled aria-hidden="true">`;
+
+    html += `<div class="stage-row" data-stage="${s.key}">
+      <div class="stage-label">${removeHtml}${s.label}</div>
+      <input id="${vtId}" data-field="vt" type="number" min="${attrs.min}" max="${attrs.max}" step="${attrs.step}" inputmode="${attrs.inputmode}" placeholder="${attrs.placeholder}" aria-label="${s.label} VT" ${req}>
+      <input id="${ratioId}" type="number" min="1" max="99" step="1" inputmode="decimal" placeholder="VT/IC" aria-label="${s.label} VT/IC, %" ${req}>
+      ${workCell}
+    </div>`;
+  }
+
+  stagePanel.innerHTML = html;
+  addRowBtn.disabled = exerciseCount >= MAX_EXERCISE;
+  addRowBtn.textContent = exerciseCount >= MAX_EXERCISE ? "Maximum stages reached" : "+ Add exercise stage";
+}
+
+/* preserve values across rebuilds */
+function saveValues() {
+  const vals = {};
+  stagePanel.querySelectorAll("input[id]").forEach(inp => {
+    if (!inp.disabled) vals[inp.id] = inp.value;
+  });
+  return vals;
+}
+
+function restoreValues(vals) {
+  for (const [id, val] of Object.entries(vals)) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+}
+
+/* ── add / remove ── */
+addRowBtn.addEventListener("click", () => {
+  if (exerciseCount >= MAX_EXERCISE) return;
+  const vals = saveValues();
+  exerciseCount++;
+  buildPanel();
+  restoreValues(vals);
+});
+
+stagePanel.addEventListener("click", event => {
+  const btn = event.target.closest(".remove-btn");
+  if (!btn) return;
+  const key = btn.dataset.remove;
+  const idx = Number(key.replace("ex", ""));
+  if (idx <= 4 || idx > exerciseCount) return;
+  const vals = saveValues();
+  // shift values from rows above down
+  for (let i = idx; i < exerciseCount; i++) {
+    vals[`ex${i}-vt`] = vals[`ex${i+1}-vt`] || "";
+    vals[`ex${i}-ratio`] = vals[`ex${i+1}-ratio`] || "";
+    vals[`ex${i}-work`] = vals[`ex${i+1}-work`] || "";
+  }
+  delete vals[`ex${exerciseCount}-vt`];
+  delete vals[`ex${exerciseCount}-ratio`];
+  delete vals[`ex${exerciseCount}-work`];
+  exerciseCount--;
+  buildPanel();
+  restoreValues(vals);
+});
+
+/* ── calculation ── */
 function valueOf(id) {
-  const raw = document.getElementById(id).value.trim();
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const raw = el.value.trim();
   return raw === "" ? null : Number(raw);
 }
 
 function readStage(definition) {
-  const vt = valueOf(definition.key + "-vt");
+  let vtRaw = valueOf(definition.key + "-vt");
   const ratio = valueOf(definition.key + "-ratio");
   const work = definition.exercise ? valueOf(definition.key + "-work") : null;
 
-  if (vt === null && ratio === null && !definition.required) return null;
-  if (vt === null || ratio === null) throw new Error("Enter both VT and VT/IC for " + definition.label + ".");
-  if (!Number.isFinite(vt) || vt <= 0 || vt > 10) throw new Error(definition.label + " VT must be greater than 0 and no more than 10 L.");
+  if (vtRaw === null && ratio === null && !definition.required) return null;
+  if (vtRaw === null || ratio === null) throw new Error("Enter both VT and VT/IC for " + definition.label + ".");
+
+  // convert to liters
+  const vt = convertDisplayToL(vtRaw);
+
+  if (!Number.isFinite(vt) || vt <= 0 || vt > 10) {
+    if (vtUnit === "ml") throw new Error(definition.label + " VT must be between 50 and 10,000 mL.");
+    throw new Error(definition.label + " VT must be greater than 0 and no more than 10 L.");
+  }
   if (!Number.isFinite(ratio) || ratio <= 0 || ratio >= 100) throw new Error(definition.label + " VT/IC must be between 1% and 99%.");
   if (work !== null && (!Number.isFinite(work) || work < 0)) throw new Error(definition.label + " workload must be a non-negative number of watts.");
 
@@ -211,9 +355,11 @@ function atStage(stage) {
 }
 
 function calculate() {
-  const stages = STAGES.map(readStage).filter(Boolean);
+  const stages = getStages().map(readStage).filter(Boolean);
   const rest = stages.find(stage => stage.key === "rest");
   const exercise = stages.filter(stage => stage.exercise);
+
+  if (exercise.length === 0) throw new Error("Enter at least one exercise stage.");
 
   for (const stage of stages) stage.deltaIc = stage.ic - rest.ic;
 
@@ -244,7 +390,7 @@ function headingFor(data) {
 }
 
 function signed(value) {
-  return `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(2)}`;
+  return `${value >= 0 ? "+" : "\u2212"}${Math.abs(value).toFixed(2)}`;
 }
 
 function render(data) {
@@ -268,7 +414,7 @@ function render(data) {
     </div>`;
   }).join("");
 
-  resultsTable.innerHTML = `<thead><tr><th>Maneuver</th><th>Work, W</th><th>VT, L</th><th>VT/IC</th><th>IC, L</th><th>IRV, L</th><th>ΔIC, L</th></tr></thead>
+  resultsTable.innerHTML = `<thead><tr><th>Maneuver</th><th>Work, W</th><th>VT, L</th><th>VT/IC</th><th>IC, L</th><th>IRV, L</th><th>\u0394IC, L</th></tr></thead>
     <tbody>${data.stages.map(stage => `<tr>
       <td>${stage.label}</td>
       <td>${stage.exercise ? (stage.work !== null ? stage.work : "") : "rest"}</td>
@@ -281,9 +427,9 @@ function render(data) {
 
   const sentences = [];
   if (data.dh) {
-    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (−${data.fall.toFixed(2)} L, ${data.fallPct.toFixed(0)}%), consistent with dynamic hyperinflation.`);
+    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (\u2212${data.fall.toFixed(2)} L, ${data.fallPct.toFixed(0)}%), consistent with dynamic hyperinflation.`);
   } else if (data.fall > 0) {
-    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (−${data.fall.toFixed(2)} L), below the threshold for dynamic hyperinflation.`);
+    sentences.push(`Calculated inspiratory capacity fell from ${data.rest.ic.toFixed(2)} L at rest to ${data.lowest.ic.toFixed(2)} L${atStage(data.lowest)} (\u2212${data.fall.toFixed(2)} L), below the threshold for dynamic hyperinflation.`);
   } else {
     sentences.push(`Calculated inspiratory capacity did not fall below the resting value of ${data.rest.ic.toFixed(2)} L, without dynamic hyperinflation.`);
   }
@@ -299,6 +445,7 @@ function render(data) {
   result.scrollIntoView({behavior:"smooth", block:"nearest"});
 }
 
+/* ── events ── */
 form.addEventListener("submit", event => {
   event.preventDefault();
   copyStatus.textContent = "";
@@ -317,17 +464,52 @@ form.addEventListener("reset", () => {
   errorMessage.style.display = "none";
   result.style.display = "none";
   copyStatus.textContent = "";
+  // reset to default state
+  exerciseCount = 4;
+  vtUnit = "l";
+  unitLBtn.classList.add("active");
+  unitMlBtn.classList.remove("active");
+  buildPanel();
 });
 
 exampleButton.addEventListener("click", () => {
-  const example = {
-    "rest-vt":"0.90", "rest-ratio":"40",
-    "ex1-vt":"1.30", "ex1-ratio":"65", "ex1-work":"40",
-    "ex2-vt":"1.45", "ex2-ratio":"84", "ex2-work":"80",
-    "ex3-vt":"1.42", "ex3-ratio":"90", "ex3-work":"100",
-    "ex4-vt":"", "ex4-ratio":"", "ex4-work":""
-  };
-  for (const [id, value] of Object.entries(example)) document.getElementById(id).value = value;
+  // always load 4 exercise rows for the example
+  if (exerciseCount < 4) { exerciseCount = 4; buildPanel(); }
+
+  if (vtUnit === "ml") {
+    const example = {
+      "rest-vt":"900", "rest-ratio":"40",
+      "ex1-vt":"1300", "ex1-ratio":"65", "ex1-work":"40",
+      "ex2-vt":"1450", "ex2-ratio":"84", "ex2-work":"80",
+      "ex3-vt":"1420", "ex3-ratio":"90", "ex3-work":"100",
+      "ex4-vt":"", "ex4-ratio":"", "ex4-work":""
+    };
+    for (const [id, value] of Object.entries(example)) {
+      const el = document.getElementById(id);
+      if (el) el.value = value;
+    }
+  } else {
+    const example = {
+      "rest-vt":"0.90", "rest-ratio":"40",
+      "ex1-vt":"1.30", "ex1-ratio":"65", "ex1-work":"40",
+      "ex2-vt":"1.45", "ex2-ratio":"84", "ex2-work":"80",
+      "ex3-vt":"1.42", "ex3-ratio":"90", "ex3-work":"100",
+      "ex4-vt":"", "ex4-ratio":"", "ex4-work":""
+    };
+    for (const [id, value] of Object.entries(example)) {
+      const el = document.getElementById(id);
+      if (el) el.value = value;
+    }
+  }
+  // clear any extra rows
+  for (let i = 5; i <= exerciseCount; i++) {
+    const el = document.getElementById(`ex${i}-vt`);
+    if (el) el.value = "";
+    const el2 = document.getElementById(`ex${i}-ratio`);
+    if (el2) el2.value = "";
+    const el3 = document.getElementById(`ex${i}-work`);
+    if (el3) el3.value = "";
+  }
   form.requestSubmit();
 });
 
@@ -347,6 +529,9 @@ copyButton.addEventListener("click", async () => {
     copyStatus.textContent = "Copied.";
   }
 });
+
+/* ── init ── */
+buildPanel();
 </script>
 </body>
 </html>
